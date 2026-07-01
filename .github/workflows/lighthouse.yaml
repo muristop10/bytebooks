@@ -10,25 +10,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Atualizado para v4 (suporte nativo ao Node 20+)
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
+      # Atualizado para v4 e alterado para Node 22 (LTS atual)
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      - name: Install Lighthouse
-        run: npm install -g Lighthouse
+          node-version: 22
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
+      # Inicia o servidor em segundo plano e garante que ele não morra quando o passo terminar
       - name: Build and start the project
-        run: npm run build && npm start &
+        run: |
+          npm run build
+          nohup npm start > server.log 2>&1 &
 
+      # Aguarda o servidor responder na porta local (substitua 3000 pela sua porta se for diferente)
       - name: Wait for the application to start
-        run: sleep 10
+        run: |
+          echo "Aguardando o servidor iniciar..."
+          npx wait-on http://localhost:3000 --timeout 30000
 
       - name: Run Lighthouse CI
         run: npm run lighthouse-ci
