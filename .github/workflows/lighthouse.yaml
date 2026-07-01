@@ -24,14 +24,21 @@ jobs:
       - name: Build and start the project
         run: |
           npm run build
-          nohup npm start > server.log 2>&1 &
+          # Força o Vite a aceitar conexões externas (--host) na porta 3000
+          npm run preview -- --host 0.0.0.0 --port 3000 > server.log 2>&1 &
 
       - name: Wait for the application to start
         run: |
-          echo "Aguardando o servidor..."
-          npx wait-on http://localhost:5173 --timeout 30000
+          echo "Aguardando o servidor iniciar em http://127.0.0.1:3000..."
+          # Usamos o IP fixo 127.0.0.1 para evitar problemas de DNS interno do Linux
+          npx wait-on http://127.0.0.1:3000 --timeout 45000
 
-      # Correção do Erro: Adiciona os argumentos necessários para o Lighthouse rodar no Linux do GitHub
+      - name: Output server logs on failure
+        if: failure()
+        run: |
+          echo "=== CONTEÚDO DO SERVER.LOG ==="
+          cat server.log || echo "Arquivo server.log não encontrado."
+
       - name: Run Lighthouse CI
         run: npm run lighthouse-ci
         env:
