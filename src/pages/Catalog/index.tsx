@@ -1,5 +1,4 @@
 import { useDispatch, useSelector } from 'react-redux';
-import Header from '../../components/Header';
 import PageContent from '../../components/PageContent';
 import PageSection from '../../components/PageSection';
 import React, { useEffect } from 'react';
