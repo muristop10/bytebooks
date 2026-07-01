@@ -10,11 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Atualizado para v4 (suporte nativo ao Node 20+)
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Atualizado para v4 e alterado para Node 22 (LTS atual)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -23,17 +21,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Inicia o servidor em segundo plano e garante que ele não morra quando o passo terminar
       - name: Build and start the project
         run: |
           npm run build
           nohup npm start > server.log 2>&1 &
 
-      # Aguarda o servidor responder na porta local (substitua 3000 pela sua porta se for diferente)
       - name: Wait for the application to start
         run: |
-          echo "Aguardando o servidor iniciar..."
+          echo "Aguardando o servidor..."
           npx wait-on http://localhost:3000 --timeout 30000
 
+      # Correção do Erro: Adiciona os argumentos necessários para o Lighthouse rodar no Linux do GitHub
       - name: Run Lighthouse CI
         run: npm run lighthouse-ci
+        env:
+          LHCI_CHROME_FLAGS: "--no-sandbox --headless --disable-gpu"
